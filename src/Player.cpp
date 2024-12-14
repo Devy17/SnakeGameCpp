@@ -10,6 +10,7 @@ Player::Player(COORD _head) {
 }
 
 void Player::SetDir(Direction _dir){
+    // 같은 축으로는 이동 불가
     switch(_dir) {
         case Direction::LEFT:
             if (dir == Direction::RIGHT) return;
@@ -47,23 +48,27 @@ bool Player::Move() {
             dx--; break; 
     }
     
-    if (head.X + dx < 0 || head.X + dx > MapSize ||
-        head.Y + dy < 0 || head.Y + dy > MapSize) {
+    // 벽에 부딫히면 게임 오버
+    if (head.X + dx < 0 || head.X + dx >= MapSize ||
+        head.Y + dy < 0 || head.Y + dy >= MapSize) {
             return false;
     }
 
 
+    // 머리가 움직였을 때 몸체와 충돌하는 지 확인하기 위함.
+    body[0].X += dx;
+    body[0].Y -= dy;
 
+    head = body[0];
 
-    for(int i =0; i < body.size(); i++) {
-        
+    for(int i =1; i < body.size(); i++) {
+        if(head.X == body[i].X && head.Y == body[i].Y) return false;
 
         body[i].X += dx;
         body[i].Y -= dy;
     }
 
-    head.X = body[0].X;
-    head.Y = body[0].Y;
+    
 
     return true;
 }
