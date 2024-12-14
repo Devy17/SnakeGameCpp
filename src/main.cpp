@@ -2,39 +2,68 @@
 #include <Windows.h>
 #include <conio.h>
 #include <string>
+#include <time.h>
 #include "../include/Player.hpp"
+#include "../include/Point.hpp"
 
 #define MapSize 32
 
 using namespace std;
 
 void Init();
+int NextMove(long start, COORD pointPos);
 void ResetScreen();
 void DrawWall();
 void Draw();
+COORD DrawPoint();
 void DrawPlayer();
 void DetectInput();
 void MoveCursor(int x, int y);
 
 char screen[MapSize][MapSize + 1];
 Player p({MapSize / 2,MapSize / 2});
+COORD pointPos = {-1, -1};
 
 int main() {
     Init();
     DrawWall();
-    while(1){
-        DetectInput();
-        if(p.Move()) {
-            Draw();
-        }
-        else {
-            system("pause");
-            break;
-        }
+    pointPos = DrawPoint();
 
-        Sleep(500);
+    long start = (long)clock();
+    while(true){
+        // 키보드 입력 감지
+        DetectInput();
+        
+        // 정해진 시간마다 움직임 수행
+        int isWaitOrEnd = NextMove(start, pointPos);
+        if(isWaitOrEnd == -1) break;
+        else if(isWaitOrEnd == 0) {
+            start = clock();
+        }
     }
     return 0;
+}
+
+int NextMove(long start, COORD _pointPos)
+{
+    // Delay
+    while(clock() - start < 0.5f * CLOCKS_PER_SEC) return 1;
+
+    int len = p.GetLen();
+    if (p.Move(_pointPos))
+    {
+        if(len != p.GetLen()) {
+            pointPos = DrawPoint();
+        }
+        Draw();
+        return 0;
+    }
+    else
+    {
+        // 끝남 처리
+        system("pause");
+        return -1;
+    }
 }
 
 void Init() {
@@ -57,6 +86,7 @@ void ResetScreen()
     {
         for (int j = 0; j < MapSize; j++)
         {
+            if(screen[i][j] == '@') continue;
             screen[i][j] = ' ';
         }
         screen[i][MapSize] = '\0';
@@ -108,8 +138,33 @@ void DrawPlayer()
     }
 }
 
+// 점수를 획득하였을때만
+COORD DrawPoint() {
+    Point *s;
+    COORD pos;
+    while(true) {
+        s = new Point;
+        pos = s->GetPos();
+        bool isSamePos = false;
+        vector<COORD> body = p.GetBody();
+        for(int i =0; i < body.size(); i++){
+            if(pos.X == body[i].X && pos.Y == body[i].Y) {
+                isSamePos = true;
+                break;
+            }
+        }
+
+        if(!isSamePos) break;
+        else delete s;
+    }
+    
+    screen[pos.Y][pos.X] = '@';
+    return pos;
+}
+
 void DetectInput()
 {
+    // 입력 확인
     if (_kbhit())
     {
         char c = _getch();

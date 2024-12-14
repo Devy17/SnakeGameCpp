@@ -23,8 +23,8 @@ class Player {
         Player(COORD _head);
         void SetDir(Direction _dir);
         vector<COORD> GetBody();
-        bool Move();
-
+        bool Move(COORD pointPos);
+        int GetLen();
 };
 
 #endif
