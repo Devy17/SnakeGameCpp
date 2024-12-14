@@ -1,6 +1,6 @@
 #include "../include/Player.hpp"
 
-#define MapSize 32
+#define MapSize 20
 
 Player::Player(COORD _head) {
     head = _head;
@@ -84,4 +84,12 @@ bool Player::Move(COORD pointPos) {
 
 int Player::GetLen() {
     return len;
+}
+void Player::SetInitial(COORD _head)
+{
+    head = _head;
+    len = 1;
+    body = {};
+    body.push_back(head);
+    dir = UP;
 }

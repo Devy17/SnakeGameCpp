@@ -25,6 +25,7 @@ class Player {
         vector<COORD> GetBody();
         bool Move(COORD pointPos);
         int GetLen();
+        void SetInitial(COORD _head);
 };
 
 #endif
